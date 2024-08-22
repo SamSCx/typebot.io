@@ -1,5 +1,4 @@
 {
-  // Limit on 10 basic setup.
   "functions": {
     "src/pages/api/[...trpc].ts": {
       "maxDuration": 10,
