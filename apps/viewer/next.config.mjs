@@ -50,13 +50,19 @@ const nextConfig = {
   transpilePackages: ["@typebot.io/settings"],
   reactStrictMode: true,
   output: "standalone",
-  experimental: {
-    outputFileTracingRoot: join(__dirname, "../../"),
-    serverComponentsExternalPackages: ["isolated-vm"],
-    instrumentationHook: true,
-  },
+  outputFileTracingRoot: join(__dirname, "../../"),
+  serverExternalPackages: ["isolated-vm"],
   webpack: (config, { isServer }) => {
-    if (isServer) return config;
+    if (isServer) {
+      // TODO: Remove once https://github.com/getsentry/sentry-javascript/issues/8105 is merged and sentry is upgraded
+      config.ignoreWarnings = [
+        {
+          message:
+            /require function is used in a way in which dependencies cannot be statically extracted/,
+        },
+      ];
+      return config;
+    }
 
     config.resolve.alias["minio"] = false;
     config.resolve.alias["qrcode"] = false;

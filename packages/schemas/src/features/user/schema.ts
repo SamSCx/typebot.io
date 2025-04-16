@@ -31,6 +31,7 @@ export const userSchema = z.object({
   preferredAppAppearance: z.string().nullable(),
   displayedInAppNotifications: displayedInAppNotificationsSchema.nullable(),
   groupTitlesAutoGeneration: groupTitlesAutoGenerationSchema.nullable(),
+  preferredLanguage: z.string().nullable(),
 }) satisfies z.ZodType<Prisma.User>;
 export type User = z.infer<typeof userSchema>;
 
@@ -46,6 +47,7 @@ export const clientUserSchema = userSchema.pick({
   preferredAppAppearance: true,
   displayedInAppNotifications: true,
   groupTitlesAutoGeneration: true,
+  preferredLanguage: true,
 });
 export type ClientUser = z.infer<typeof clientUserSchema>;
 
@@ -54,10 +56,10 @@ export const updateUserSchema = userSchema.pick({
   displayedInAppNotifications: true,
   groupTitlesAutoGeneration: true,
   name: true,
-  email: true,
   image: true,
   company: true,
   graphNavigation: true,
   preferredAppAppearance: true,
+  preferredLanguage: true,
 });
 export type UpdateUser = z.infer<typeof updateUserSchema>;

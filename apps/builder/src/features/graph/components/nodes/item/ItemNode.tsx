@@ -10,9 +10,12 @@ import { useGraph } from "@/features/graph/providers/GraphProvider";
 import type { Coordinates } from "@/features/graph/types";
 import { setMultipleRefs } from "@/helpers/setMultipleRefs";
 import { Flex, Stack, useColorModeValue } from "@chakra-ui/react";
-import type { Item } from "@typebot.io/blocks-core/schemas/items/schema";
-import type { ItemIndices } from "@typebot.io/blocks-core/schemas/items/types";
+import type {
+  Item,
+  ItemIndices,
+} from "@typebot.io/blocks-core/schemas/items/schema";
 import type { BlockWithItems } from "@typebot.io/blocks-core/schemas/schema";
+import { InputBlockType } from "@typebot.io/blocks-inputs/constants";
 import { LogicBlockType } from "@typebot.io/blocks-logic/constants";
 import { isDefined } from "@typebot.io/lib/utils";
 import { useRouter } from "next/router";
@@ -54,6 +57,7 @@ export const ItemNode = ({
   const isConnectable =
     isDefined(typebot) &&
     !connectionDisabled &&
+    block.type !== InputBlockType.CARDS &&
     !(
       block.options &&
       "isMultipleChoice" in block.options &&
@@ -74,6 +78,8 @@ export const ItemNode = ({
 
   const groupId = typebot?.groups.at(indices.groupIndex)?.id;
 
+  const displayCondition = getDisplayCondition(item);
+
   return (
     <ContextMenu<HTMLDivElement>
       renderMenu={() => <ItemNodeContextMenu indices={indices} />}
@@ -85,16 +91,14 @@ export const ItemNode = ({
           ref={setMultipleRefs([ref, itemRef])}
           w="full"
         >
-          {"displayCondition" in item &&
-            item.displayCondition?.isEnabled &&
-            item.displayCondition.condition && (
-              <ConditionContent
-                condition={item.displayCondition.condition}
-                variables={typebot?.variables ?? []}
-                size="xs"
-                displaySemicolon
-              />
-            )}
+          {displayCondition && (
+            <ConditionContent
+              condition={displayCondition}
+              variables={typebot?.variables ?? []}
+              size="xs"
+              displaySemicolon
+            />
+          )}
           <Flex
             align="center"
             onMouseEnter={handleMouseEnter}
@@ -110,12 +114,16 @@ export const ItemNode = ({
             }
             w="full"
           >
-            <ItemNodeContent
-              blockType={block.type}
-              item={item}
-              isMouseOver={isMouseOver}
-              indices={indices}
-            />
+            {groupId && (
+              <ItemNodeContent
+                blockId={block.id}
+                groupId={groupId}
+                blockType={block.type}
+                item={item}
+                isMouseOver={isMouseOver}
+                indices={indices}
+              />
+            )}
             {typebot &&
               (isConnectable || pathname.endsWith("analytics")) &&
               groupId && (
@@ -137,4 +145,22 @@ export const ItemNode = ({
       )}
     </ContextMenu>
   );
+};
+
+const getDisplayCondition = (item: Item) => {
+  if (
+    "displayCondition" in item &&
+    item.displayCondition?.isEnabled &&
+    item.displayCondition.condition
+  )
+    return item.displayCondition.condition;
+  if (
+    "options" in item &&
+    item.options &&
+    "displayCondition" in item.options &&
+    item.options.displayCondition?.isEnabled &&
+    item.options.displayCondition.condition
+  )
+    return item.options.displayCondition.condition;
+  return undefined;
 };
