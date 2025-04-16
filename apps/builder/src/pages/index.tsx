@@ -1,19 +1,14 @@
-import { GetServerSidePropsContext } from 'next'
-import { getServerSession } from 'next-auth'
-import { getAuthOptions } from './api/auth/[...nextauth]'
+import { auth } from "@/features/auth/lib/nextAuth";
+import type { GetServerSidePropsContext } from "next";
 
 export default function Page() {
-  return null
+  return null;
 }
 
 export const getServerSideProps = async (
-  context: GetServerSidePropsContext
+  context: GetServerSidePropsContext,
 ) => {
-  const session = await getServerSession(
-    context.req,
-    context.res,
-    getAuthOptions({})
-  )
+  const session = await auth(context);
   if (!session?.user) {
     return {
       redirect: {
@@ -21,9 +16,9 @@ export const getServerSideProps = async (
         destination:
           context.locale !== context.defaultLocale
             ? `/${context.locale}/signin`
-            : '/signin',
+            : "/signin",
       },
-    }
+    };
   }
   return {
     redirect: {
@@ -31,7 +26,7 @@ export const getServerSideProps = async (
       destination:
         context.locale !== context.defaultLocale
           ? `/${context.locale}/typebots`
-          : '/typebots',
+          : "/typebots",
     },
-  }
-}
+  };
+};

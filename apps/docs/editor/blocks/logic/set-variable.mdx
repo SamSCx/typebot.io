@@ -114,6 +114,10 @@ A conveniant value that automatically transform your variable into a list of str
 
 This will set your variable with either `web` or `whatsapp` depending on the environment.
 
+## Device type
+
+This will set your variable with either `desktop`, `tablet` or `mobile` depending on the device type. Under the hood, we uses a combination screen width, user agent and touch capabilities to detect the device type. You can find the code [here](https://github.com/baptisteArno/typebot.io/blob/e74b95fd65064b7e1c37f7fb789c316deb601d36/packages/bot-engine/src/blocks/logic/setVariable/executeSetVariable.ts#L322-L350)
+
 ## Transcript
 
 This preset value will save the entire conversation transcript in a variable. It is super useful to provide context to an AI block or to send it as a recap with the [Send email](../integrations/send-email) block.
@@ -167,6 +171,10 @@ Only available in WhatsApp. This will set your variable with the user's phone nu
 ## Contact name
 
 Only available in WhatsApp. This will set your variable with the user's name.
+
+## Pop / Shift
+
+Pop removes the **last** item from the list variable that you provide and it will set the removed item into the "Popped item" variable. Shift does the same with the **first** item of the list. These are especially useful when you need to [create a loop](../../../guides/how-to-create-loops) that processes each item of a list.
 
 ## Save in results
 

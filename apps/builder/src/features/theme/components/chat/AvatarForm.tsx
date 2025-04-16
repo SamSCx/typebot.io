@@ -1,31 +1,32 @@
-import React from 'react'
-import { AvatarProps } from '@typebot.io/schemas'
+import { ImageUploadContent } from "@/components/ImageUploadContent";
+import type { FilePathUploadProps } from "@/features/upload/api/generateUploadUrl";
+import { useOutsideClick } from "@/hooks/useOutsideClick";
 import {
-  Heading,
+  Box,
+  Flex,
   HStack,
+  Heading,
+  Image,
   Popover,
+  PopoverAnchor,
   PopoverContent,
+  Portal,
   Stack,
   Switch,
-  Image,
-  Flex,
-  Box,
-  Portal,
-  PopoverAnchor,
+  chakra,
   useDisclosure,
-} from '@chakra-ui/react'
-import { ImageUploadContent } from '@/components/ImageUploadContent'
-import { DefaultAvatar } from '../DefaultAvatar'
-import { useOutsideClick } from '@/hooks/useOutsideClick'
-import { FilePathUploadProps } from '@/features/upload/api/generateUploadUrl'
-
+} from "@chakra-ui/react";
+import { isSvgSrc } from "@typebot.io/lib/utils";
+import type { AvatarProps } from "@typebot.io/theme/schemas";
+import React from "react";
+import { DefaultAvatar } from "../DefaultAvatar";
 type Props = {
-  uploadFileProps: FilePathUploadProps
-  title: string
-  avatarProps?: AvatarProps
-  isDefaultCheck?: boolean
-  onAvatarChange: (avatarProps: AvatarProps) => void
-}
+  uploadFileProps: FilePathUploadProps;
+  title: string;
+  avatarProps?: AvatarProps;
+  isDefaultCheck?: boolean;
+  onAvatarChange: (avatarProps: AvatarProps) => void;
+};
 
 export const AvatarForm = ({
   uploadFileProps,
@@ -34,21 +35,21 @@ export const AvatarForm = ({
   isDefaultCheck = false,
   onAvatarChange,
 }: Props) => {
-  const { isOpen, onOpen, onClose } = useDisclosure()
-  const isChecked = avatarProps ? avatarProps.isEnabled : isDefaultCheck
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const isChecked = avatarProps ? avatarProps.isEnabled : isDefaultCheck;
   const handleOnCheck = () =>
-    onAvatarChange({ ...avatarProps, isEnabled: !isChecked })
+    onAvatarChange({ ...avatarProps, isEnabled: !isChecked });
   const handleImageUrl = (url: string) =>
-    onAvatarChange({ isEnabled: isChecked, url })
-  const popoverContainerRef = React.useRef<HTMLDivElement>(null)
+    onAvatarChange({ isEnabled: isChecked, url });
+  const popoverContainerRef = React.useRef<HTMLDivElement>(null);
 
   useOutsideClick({
     ref: popoverContainerRef,
     handler: onClose,
     isEnabled: isOpen,
-  })
+  });
 
-  const isDefaultAvatar = !avatarProps?.url || avatarProps.url.includes('{{')
+  const isDefaultAvatar = !avatarProps?.url || avatarProps.url.includes("{{");
   return (
     <Stack borderWidth={1} rounded="md" p="4" spacing={4}>
       <Flex justifyContent="space-between">
@@ -66,21 +67,42 @@ export const AvatarForm = ({
                   <Box onClick={onOpen}>
                     <DefaultAvatar
                       cursor="pointer"
-                      _hover={{ filter: 'brightness(.9)' }}
+                      _hover={{ filter: "brightness(.9)" }}
                     />
                   </Box>
-                ) : (
+                ) : isSvgSrc(avatarProps?.url) ? (
                   <Image
                     onClick={onOpen}
                     src={avatarProps.url}
                     alt="Website image"
                     cursor="pointer"
-                    _hover={{ filter: 'brightness(.9)' }}
+                    _hover={{ filter: "brightness(.9)" }}
+                    transition="filter 200ms"
+                    boxSize="40px"
+                  />
+                ) : avatarProps?.url?.startsWith("http") ? (
+                  <Image
+                    onClick={onOpen}
+                    src={avatarProps.url}
+                    alt="Website image"
+                    cursor="pointer"
+                    _hover={{ filter: "brightness(.9)" }}
                     transition="filter 200ms"
                     rounded="full"
                     boxSize="40px"
                     objectFit="cover"
                   />
+                ) : (
+                  <chakra.span
+                    fontSize="40px"
+                    lineHeight="1"
+                    onClick={onOpen}
+                    cursor="pointer"
+                    _hover={{ filter: "brightness(.9)" }}
+                    transition="filter 200ms"
+                  >
+                    {avatarProps?.url}
+                  </chakra.span>
                 )}
               </PopoverAnchor>
               <Portal>
@@ -95,6 +117,12 @@ export const AvatarForm = ({
                     defaultUrl={avatarProps?.url}
                     imageSize="thumb"
                     onSubmit={handleImageUrl}
+                    additionalTabs={{
+                      emoji: true,
+                      giphy: true,
+                      unsplash: true,
+                      icon: true,
+                    }}
                   />
                 </PopoverContent>
               </Portal>
@@ -103,5 +131,5 @@ export const AvatarForm = ({
         )}
       </Flex>
     </Stack>
-  )
-}
+  );
+};
